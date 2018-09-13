@@ -46,8 +46,8 @@ class DataInput:
             with open(word_dict_path, 'w', encoding='utf-8') as f:  #记录词典文件
                 json.dump(word_dict, f)
         self.word_dict = word_dict
-        self.word_data = open(word_data_path, 'r', encoding='utf-8')  #打开原数据文件
         self.wordn_max = wordn_max
+        self.word_data = open(word_data_path, 'r', encoding='utf-8')  #打开原数据文件
 
 
     def data_reload(self, word_data_path):
@@ -63,18 +63,19 @@ class DataInput:
 
     def __next_word(self):
         '''找到下一个单词'''
-        next_wordmax = self.word_data.read(self.wordn_max + 1)  #读入wordn_max位
+        next_wordmax = self.word_data.read(self.wordn_max + 1)  #读入wordn_max+1位
         fp = self.word_data.tell()-1
-        i = 1
+        i = 0
         while i < self.wordn_max:
-            next_word = next_wordmax[0:-i]
             i += 1
+            next_word = next_wordmax[0:-i]
             if next_word in self.word_dict:  #如果在词典中找到了
+                t=fp - DataInput.__utf8width(next_wordmax, i)
+                self.word_data.seek(fp - DataInput.__utf8width(next_wordmax, i))
                 break  #就退出
         else:  #找不到就滑动一格然后递归调用
             self.word_data.seek(fp - DataInput.__utf8width(next_wordmax, i))
             next_word = self.__next_word()
-        self.word_data.seek(fp - DataInput.__utf8width(next_wordmax, i))
         return next_word
 
 
