@@ -1,6 +1,7 @@
 .idea/
 test/
 RNN/
+.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
