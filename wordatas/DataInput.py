@@ -9,6 +9,7 @@ from wordatas.BuildDict import BuildDict
 class DataInput:
     word_dict = {}  #词典
     word_data = ''  #预处理数据文件
+    wordn_max = 0
 
 
     def __init__(self, path, wordn_max, feq_min, count_percent):
@@ -46,12 +47,50 @@ class DataInput:
                 json.dump(word_dict, f)
         self.word_dict = word_dict
         self.word_data = open(word_data_path, 'r', encoding='utf-8')  #打开原数据文件
+        self.wordn_max = wordn_max
 
 
     def data_reload(self, word_data_path):
+        '''重新载入数据文件,用于在生成词典之后载入其他源文件'''
         self.word_data.close()
-        self.word_data = open(word_data_path)
+        self.word_data = open(word_data_path, 'r', encoding='utf-8')
 
 
-    def next_batch(self, n):
-        return self.word_data.read(n)
+    @staticmethod
+    def __utf8width(text, n):  #统计最后n个字符的位宽
+        return len(text[len(text) - n:].encode('utf-8'))
+
+
+    def __next_word(self):
+        '''找到下一个单词'''
+        next_wordmax = self.word_data.read(self.wordn_max + 1)  #读入wordn_max位
+        fp = self.word_data.tell()-1
+        i = 1
+        while i < self.wordn_max:
+            next_word = next_wordmax[0:-i]
+            i += 1
+            if next_word in self.word_dict:  #如果在词典中找到了
+                break  #就退出
+        else:  #找不到就滑动一格然后递归调用
+            self.word_data.seek(fp - DataInput.__utf8width(next_wordmax, i))
+            next_word = self.__next_word()
+        t=DataInput.__utf8width(next_wordmax, i)
+        self.word_data.seek(fp - DataInput.__utf8width(next_wordmax, i))
+        return next_word
+
+
+    last_word = ''  #记录上一个词
+
+
+    def __next_batch(self):
+        next_word = self.__next_word()  #读入wordn_max位
+        batch = (self.last_word, next_word)
+        self.last_word = next_word
+        return batch
+
+
+    def next_batchs(self, n):
+        batches = []
+        for _ in range(0, n):
+            batches.append(self.__next_batch())
+        return batches

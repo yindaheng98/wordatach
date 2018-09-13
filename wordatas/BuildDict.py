@@ -54,12 +54,14 @@ class BuildDict:
     def build_dict_from_counts(word_counts, feq_min, count_percent):
         '''取出现次数大于min_wordn的前count_percent部分单词构造单词表'''
         word_dict = {}
+        word_id = 0  #初始化单词对应的编号
         for word_count in word_counts:
-            middle_count = word_count[int(len([count for count in word_count if count[1] > feq_min]) * count_percent)][
-                1]
+            #先找前feq_min位的词频值分界线
+            middle = word_count[int(len([count for count in word_count if count[1] > feq_min]) * count_percent)][1]
             for w_c in word_count:
-                if w_c[1] > middle_count:
-                    word_dict[w_c[0]] = w_c[1]
+                if w_c[1] > middle:
+                    word_dict[w_c[0]] = word_id  #词典中存储的是对单词的编号
+                    word_id += 1  #编号加1
                 else:
                     break
         return word_dict
