@@ -74,7 +74,6 @@ class DataInput:
         else:  #找不到就滑动一格然后递归调用
             self.word_data.seek(fp - DataInput.__utf8width(next_wordmax, i))
             next_word = self.__next_word()
-        t=DataInput.__utf8width(next_wordmax, i)
         self.word_data.seek(fp - DataInput.__utf8width(next_wordmax, i))
         return next_word
 
