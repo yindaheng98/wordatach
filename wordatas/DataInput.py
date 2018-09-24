@@ -59,35 +59,55 @@ class DataInput:
             self.word_dict = json.load(f)  #编号-单词词典文件进入内存
         self.wordn_max = wordn_max
         self.word_data = open(word_data_path, 'r', encoding='utf-8')  #打开原数据文件
-        self.last_w = self.word_data.read(1)  #并读入一个字
+        self.words = []
+        self.__update_words()
 
 
     def data_reload(self, word_data_path):
         """重新载入数据文件,用于在生成词典之后切换其他源文件"""
         self.word_data.close()
         self.word_data = open(word_data_path, 'r', encoding='utf-8')  #打开原数据文件
-        self.last_w = self.word_data.read(1)  #并读入一个字
+        self.words = []
+        self.__update_words()
 
 
     wordn_max = 0  #最大子长
-    last_w = ''  #上一个字
+    words = []  #要检测的一串字
+
+
+    def __update_words(self):
+        """更新last_w使长度达到wordn_max字"""
+        needs = self.wordn_max - len(self.words)  #算出缺少多少字达到wordn_max字
+        for _ in range(0, needs):
+            self.words.append(self.word_data.read(1))  #并读入一串字
 
 
     def __next_word(self):
         """从文本中切出一个单词"""
-        next_word = 0  #如果没有在根节点找到字就返回0
-        if self.last_w in self.tree_dict:  #如果上一个词在树形词典根节点中
-            r = self.tree_dict[self.last_w]  #开始树形搜索,r表示树形搜索当前到达的范围
-            for _ in range(0, self.wordn_max):
-                next_w = self.word_data.read(1)  #读入1个字
-                if next_w in r:  #如果此范围内有这个字
-                    r = r[next_w]  #进入下一层
-                else:  #如果此范围内没有这个字说明搜索到达终点
-                    next_word = r['id']  #那么下一个词就是当前域对应的词
-                    self.last_w = next_w  #然后把这个字作为上一字
-                    break
-        else:  #否则如果根节点没有
-            self.last_w = self.word_data.read(1)  #就后移一位
+        self.__update_words()  #先补齐words
+        has_id = []
+        r = self.tree_dict  #开始树形搜索,r表示树形搜索当前到达的范围
+        for i in range(0, self.wordn_max):
+            word = self.words[i]  #读入1个字
+            if word in r:  #如果r的分支内有这个字
+                r = r[word]  #进入下分支
+                has_id.append('id' in r)  #记录这个分支里面是否有id
+            else:  #如果r的分支内没有这个字说明搜索到达所要节点
+                if 'id' in r:  #如果这个叶节点有id说明找到了所要的词
+                    next_word = r['id']  #那么返回的词就是当前词
+                    self.words = self.words[i if not i == 0 else 1:]  #然后把已检索到的词删掉,如果一个词都没检索到就滑动一格
+                else:  #如果r域没有id说明不是终点而且要回溯
+                    layer = 0
+                    for layer in range(0, len(has_id)):
+                        if not has_id[layer]:
+                            break
+                    #通过has_id回溯上一个有id的主枝层数layer
+                    r = self.tree_dict
+                    for j in range(0, layer):
+                        r = r[self.words[j]]
+                    next_word = r['id']  #返回最近的有id词语
+                    self.words = self.words[layer if not layer == 0 else 1:]  #然后把已检索到的词删掉
+                break
         return next_word
 
 

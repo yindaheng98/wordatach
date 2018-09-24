@@ -72,7 +72,7 @@ class BuildDict:
     @staticmethod
     def convert_tree_dict(word_dict):
         """把单词-编号词典转化为树形词典"""
-        converted_dict = {}
+        converted_dict = {'id': 0}
         for wid, word in word_dict.items():
             r = converted_dict
             for w in word:
