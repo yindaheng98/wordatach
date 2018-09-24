@@ -10,7 +10,7 @@ class BuildDict:
 
     @staticmethod
     def read_origional_file(path):
-        '''读取源文件非空字符串'''
+        """读取源文件非空字符串"""
         text = []
         zh_pattern = re.compile(u'[\u4e00-\u9fa5]+')
         with open(path, 'r', encoding='utf-8', errors='ignore') as f:
@@ -25,7 +25,7 @@ class BuildDict:
 
     @staticmethod
     def __split_origional_str(text, wordn_max):
-        '''原始字符串切分为单字至指定字数的词列表'''
+        """原始字符串切分为单字至指定字数的词列表"""
         word_lists = []
         for n in range(wordn_max - 1, 0, -1):
             word_list = []
@@ -39,7 +39,7 @@ class BuildDict:
 
     @staticmethod
     def __count_words(word_lists):
-        '''统计单词和对应的词频'''
+        """统计单词和对应的词频"""
         word_counts = []
         for word_list in word_lists:
             word_count = {}
@@ -54,19 +54,33 @@ class BuildDict:
 
     @staticmethod
     def build_dict_from_counts(word_counts, feq_min, count_percent):
-        '''取出现次数大于min_wordn的前count_percent部分单词构造单词表'''
+        """取出现次数大于min_wordn的前count_percent部分单词构造单词表"""
         word_dict = {}
-        word_id = 0  #初始化单词对应的编号
+        word_id = 1  #初始化单词对应的编号
         for word_count in word_counts:
             #先找前feq_min位的词频值分界线
             middle = word_count[int(len([count for count in word_count if count[1] > feq_min]) * count_percent)][1]
             for w_c in word_count:
                 if w_c[1] > middle:
-                    word_dict[w_c[0]] = word_id  #词典中存储的是对单词的编号
+                    word_dict[word_id] = w_c[0]  #词典中存储的是对单词的编号
                     word_id += 1  #编号加1
                 else:
                     break
         return word_dict
+
+
+    @staticmethod
+    def convert_tree_dict(word_dict):
+        """把单词-编号词典转化为树形词典"""
+        converted_dict = {}
+        for wid, word in word_dict.items():
+            r = converted_dict
+            for w in word:
+                if w not in r.keys():  #如果没有就加进去
+                    r[w] = {}
+                r = r[w]  #然后向下检索一格
+            r['id'] = wid
+        return converted_dict
 
 
     @staticmethod
