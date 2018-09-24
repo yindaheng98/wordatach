@@ -86,6 +86,7 @@ class DataInput:
         """从文本中切出一个单词"""
         self.__update_words()  #先补齐words
         has_id = []
+        next_word = 0
         r = self.tree_dict  #开始树形搜索,r表示树形搜索当前到达的范围
         for i in range(0, self.wordn_max):
             word = self.words[i]  #读入1个字
@@ -108,6 +109,7 @@ class DataInput:
                     next_word = r['id']  #返回最近的有id词语
                     self.words = self.words[layer if not layer == 0 else 1:]  #然后把已检索到的词删掉
                 break
+        #return self.word_dict[str(next_word)] if not next_word == 0 else next_word
         return next_word
 
 
