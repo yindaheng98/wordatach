@@ -7,6 +7,7 @@ from wordatas.BuildDict import BuildDict
 
 
 class DataInput:
+    dict_size = 0
     word_dict = {}  #编号-单词词典
     tree_dict = {}  #树形词典
     word_data = ''  #预处理数据文件
@@ -57,6 +58,7 @@ class DataInput:
         self.tree_dict = tree_dict  #树形词典文件进入内存
         with open(word_dict_path, 'r', encoding='utf-8') as f:  #记录词典文件
             self.word_dict = json.load(f)  #编号-单词词典文件进入内存
+        self.dict_size = len(self.word_dict)
         self.wordn_max = wordn_max
         self.word_data = open(word_data_path, 'r', encoding='utf-8')  #打开原数据文件
         self.words = []
@@ -123,16 +125,29 @@ class DataInput:
 
     def __next_batch(self):
         """下一个训练对"""
-        next_word = self.__next_word()  #记录下一个词
-        batch = ([self.last_word, next_word], self.this_word)
-        self.last_word = self.this_word
-        self.this_word = next_word
+        while 1:
+            next_word = self.__next_word()  #记录下一个词
+            batch = ([self.last_word, next_word], self.this_word)
+            self.last_word = self.this_word
+            self.this_word = next_word
+            if (0 not in batch) and (0 not in batch[0]):
+                break  #找到一个全不为0的batch才退出
         return batch
 
 
-    def next_batchs(self, n):
-        """读出n个训练对"""
+    def next_batches_for_cbow(self, n):
+        """读出n个训练对,为CBOW模型"""
         batches = []
         for _ in range(0, n):
             batches.append(self.__next_batch())
+        return batches
+
+
+    def next_batches_for_skipgram(self, n):
+        """读出n个训练对,为SkipGram模型"""
+        batches = []
+        while len(batches) < n:
+            batch = self.__next_batch()
+            batches.append((batch[1], batch[0][0]))
+            batches.append((batch[1], batch[0][1]))
         return batches
