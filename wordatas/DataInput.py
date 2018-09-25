@@ -61,6 +61,8 @@ class DataInput:
         self.word_data = open(word_data_path, 'r', encoding='utf-8')  #打开原数据文件
         self.words = []
         self.__update_words()
+        self.last_word = self.__next_word()
+        self.this_word = self.__next_word()
 
 
     def data_reload(self, word_data_path):
@@ -69,6 +71,8 @@ class DataInput:
         self.word_data = open(word_data_path, 'r', encoding='utf-8')  #打开原数据文件
         self.words = []
         self.__update_words()
+        self.last_word = self.__next_word()
+        self.this_word = self.__next_word()
 
 
     wordn_max = 0  #最大子长
@@ -113,14 +117,16 @@ class DataInput:
         return next_word
 
 
-    last_word = ''  #记录上一个词
+    last_word = ''  #记录前一个词
+    this_word = ''  #记录中间的词
 
 
     def __next_batch(self):
         """下一个训练对"""
-        next_word = self.__next_word()  #读入wordn_max位
-        batch = (self.last_word, next_word)
-        self.last_word = next_word
+        next_word = self.__next_word()  #记录下一个词
+        batch = ([self.last_word, next_word], self.this_word)
+        self.last_word = self.this_word
+        self.this_word = next_word
         return batch
 
 
