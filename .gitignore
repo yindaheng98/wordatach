@@ -1,6 +1,7 @@
 /.idea/*
-/test/*
-/RNN/*
+/test/official_example
+/test/斗罗大陆/*
+/test/斗罗大陆.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
