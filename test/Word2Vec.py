@@ -20,7 +20,7 @@ with tf.name_scope('vector_list'):  #词嵌入矩阵及查找操作
                                 initial_value=tf.random_uniform(shape=[dict_size, word_vec_dim],
                                                                 minval=-1.0,
                                                                 maxval=1.0))
-    word_vecs = tf.nn.embedding_lookup(word_vec_list, train_input)
+    input_word_vecs = tf.nn.embedding_lookup(word_vec_list, train_input)
 
 with tf.name_scope('NCE_loss'):  #NCE loss
     nce_weight = tf.Variable(dtype=tf.float32,
@@ -30,7 +30,7 @@ with tf.name_scope('NCE_loss'):  #NCE loss
                            initial_value=tf.zeros(shape=[dict_size]))
     nce_loss = tf.nn.nce_loss(weights=nce_weight,
                               biases=nce_bias,
-                              inputs=word_vecs,
+                              inputs=input_word_vecs,
                               labels=train_label,
                               num_sampled=nega_batch_size,
                               num_classes=dict_size)
@@ -49,13 +49,16 @@ with tf.Session() as sess:
     writer = tf.summary.FileWriter('word2vec_log', sess.graph)
     sess.run(tf.global_variables_initializer())
     for step in range(1000000):
-        batches = np.array(data_input.next_batches_for_skipgram(batch_size))
+        try:
+            batches = np.array(data_input.next_batches_for_skipgram(batch_size))
+        except IOError:
+            break
         inputs = batches[:, 0]
         labels = batches[:, 1].reshape(-1, 1)
         feed_dict = {train_input: inputs, train_label: labels}
-        _, step_loss, summary = sess.run([optimizer, loss, merge], feed_dict=feed_dict)
+        _, summary = sess.run([optimizer, merge], feed_dict=feed_dict)
         writer.add_summary(summary, step)
+    data_input.record_result(sess.run(word_vec_list).tolist())
     saver.save(sess, 'word2vec_log/model.ckpt')
     writer.close()
-
 data_input.word_data.close()
