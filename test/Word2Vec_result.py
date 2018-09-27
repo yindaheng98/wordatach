@@ -1,6 +1,5 @@
 import tensorflow as tf
 import json
-import numpy as np
 
 valid_size = 16  #验证用词的数量
 result_path = '斗罗大陆\字数不大于10且至少出现10次的词中的前50.000000%的result.json'

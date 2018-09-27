@@ -48,16 +48,19 @@ merge = tf.summary.merge_all()
 with tf.Session() as sess:
     writer = tf.summary.FileWriter('word2vec_log', sess.graph)
     sess.run(tf.global_variables_initializer())
-    for step in range(1000000):
+    for step in range(200000):
         try:
             batches = np.array(data_input.next_batches_for_skipgram(batch_size))
         except IOError:
-            break
+            data_input.data_reload_current()
+            continue
         inputs = batches[:, 0]
         labels = batches[:, 1].reshape(-1, 1)
         feed_dict = {train_input: inputs, train_label: labels}
         _, summary = sess.run([optimizer, merge], feed_dict=feed_dict)
         writer.add_summary(summary, step)
+        if step % 1000 == 0:
+            print('step' + str(step))
     data_input.record_result(sess.run(word_vec_list).tolist())
     saver.save(sess, 'word2vec_log/model.ckpt')
     writer.close()

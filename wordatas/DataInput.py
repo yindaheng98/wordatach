@@ -102,6 +102,13 @@ class DataInput:
         self.__update_words()
         self.last_word = self.__next_word()
         self.this_word = self.__next_word()
+        self.words = []
+
+
+    def data_reload_current(self):
+        """重新载入当前的数据文件"""
+        self.word_data.seek(0)
+        self.words = []
 
 
     wordn_max = 0  #最大子长
