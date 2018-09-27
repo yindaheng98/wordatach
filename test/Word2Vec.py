@@ -48,7 +48,7 @@ merge = tf.summary.merge_all()
 with tf.Session() as sess:
     writer = tf.summary.FileWriter('word2vec_log', sess.graph)
     sess.run(tf.global_variables_initializer())
-    for step in range(200000):
+    for step in range(100000):
         try:
             batches = np.array(data_input.next_batches_for_skipgram(batch_size))
         except IOError:
