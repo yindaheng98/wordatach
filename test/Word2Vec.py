@@ -8,7 +8,7 @@ data_input = DataInput('斗罗大陆.txt', 10, 10, 0.5)
 #初始化输入数据
 batch_size = 128  #每次的样本数量
 nega_batch_size = 64  #每次的负样本数量
-word_vec_dim = 3  #词向量的维度
+word_vec_dim = 64  #词向量的维度
 dict_size = data_input.dict_size  #单词数量
 
 with tf.name_scope('training_batch'):  #训练样本的placeholder
@@ -48,12 +48,13 @@ merge = tf.summary.merge_all()
 with tf.Session() as sess:
     writer = tf.summary.FileWriter('word2vec_log', sess.graph)
     sess.run(tf.global_variables_initializer())
-    for step in range(100000):
+    for step in range(10000000):
         try:
             batches = np.array(data_input.next_batches_for_skipgram(batch_size))
         except IOError:
-            data_input.data_reload_current()
-            continue
+            break
+            #data_input.data_reload_current()
+            #continue
         inputs = batches[:, 0]
         labels = batches[:, 1].reshape(-1, 1)
         feed_dict = {train_input: inputs, train_label: labels}

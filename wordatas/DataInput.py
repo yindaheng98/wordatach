@@ -11,7 +11,9 @@ class DataInput:
     word_list = {}  #单词表
     word_dict = {}  #词典
     word_data = ''  #预处理数据文件
-    result_path = ''
+    word_hits = []  #各单词的命中次数
+    result_path = ''  #结果存储路径
+    hit_path = ''
 
 
     def __init__(self, path, wordn_max, feq_min, count_percent):
@@ -28,7 +30,9 @@ class DataInput:
         word_dict_path = index_path + '字数不大于%d且至少出现%d次的词中的前%f%%的word_dict.json' % (
             wordn_max, feq_min, count_percent * 100)
         #结果存储路径
-        self.result_path = index_path + '字数不大于%d且至少出现%d次的词中的前%f%%的result.json' % (
+        self.result_path = index_path + '字数不大于%d且至少出现%d次的词中的前%f%%%%' % (
+            wordn_max, feq_min, count_percent * 100) + '的%d维词向量.json'
+        self.hit_path = index_path + '字数不大于%d且至少出现%d次的词中的前%f%%的命中次数.json' % (
             wordn_max, feq_min, count_percent * 100)
         #读取原文
         if not os.path.exists(index_path):
@@ -86,6 +90,7 @@ class DataInput:
         print('预处理数据初始化完成')
         self.dict_size = len(self.word_list)
         print('单词表大小%d' % self.dict_size)
+        self.word_hits = [0] * self.dict_size
         self.wordn_max = wordn_max
         self.words = []
         self.__update_words()
@@ -151,7 +156,7 @@ class DataInput:
                     next_word = r['id']  #返回最近的有id词语
                     self.words = self.words[layer if not layer == 0 else 1:]  #然后把已检索到的词删掉
                 break
-        #return self.word_list[str(next_word)] if not next_word == 0 else next_word
+        self.word_hits[next_word] += 1  #记录命中次数
         return next_word
 
 
@@ -191,6 +196,6 @@ class DataInput:
 
     def record_result(self, word_vec_list):
         """记录词向量结果"""
-        with open(self.result_path, 'w') as f:
-            json.dump({'word_list': self.word_list, 'word_vec_list': word_vec_list}, f)
-        print('结果已写入%s' % self.result_path)
+        with open(self.result_path % (len(word_vec_list[0])), 'w') as f:
+            json.dump({'word_list': self.word_list, 'word_vec_list': word_vec_list, 'word_hits': self.word_hits}, f)
+        print('结果及各单词命中次数已写入%s' % self.result_path)
