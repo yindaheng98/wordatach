@@ -2,6 +2,7 @@
 /test/official_example
 /test/斗罗大陆/*
 /test/斗罗大陆.txt
+/test/word2vec_log/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
