@@ -12,7 +12,7 @@ def select_valid_wordids(word_hits, word_count_maxs):
 def plot_with_words(vecs_2dim, words, file):
     plt.rcParams['font.sans-serif'] = ['SimHei']  # 中文字体设置
     plt.rcParams['axes.unicode_minus'] = False
-    plt.figure(figsize=(36, 36))  # in inches
+    plt.figure(figsize=(24, 24))  # in inches
     for i, label in enumerate(words):
         x, y = vecs_2dim[i, :]
         plt.scatter(x, y)

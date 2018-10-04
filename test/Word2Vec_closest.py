@@ -1,7 +1,7 @@
 import tensorflow as tf
 import json
 
-from test.Functions import select_valid_wordids
+from Functions import select_valid_wordids
 
 result_path = '斗罗大陆/字数不大于10的词统计数据/至少出现10次的词中的前50.000000%的词统计数据/64维词向量.json'
 with open(result_path) as f:
