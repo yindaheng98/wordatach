@@ -1,8 +1,8 @@
 import json
 from sklearn.manifold import TSNE
 
-from Functions import select_valid_wordids
-from Functions import plot_with_words
+from test.Functions import select_valid_wordids
+from test.Functions import plot_with_words
 
 result_path = '斗罗大陆\字数不大于10且至少出现10次的词中的前50.000000%的64维词向量.json'
 with open(result_path) as f:
