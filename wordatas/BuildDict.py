@@ -54,11 +54,14 @@ class BuildDict:
 
     @staticmethod
     def build_list_from_counts(word_counts, feq_min, count_percent):
-        """取出现次数大于min_wordn的前count_percent部分单词构造单词表"""
+        """取出现次数大于feq_min的前count_percent部分单词构造单词表"""
         word_list = ['']
         for word_count in word_counts:
             #先找前feq_min位的词频值分界线
-            middle = word_count[int(len([count for count in word_count if count[1] > feq_min]) * count_percent)][1]
+            if len(word_count[0][0]) == 2:
+                middle = 0  #两位数的词全部计入以避免出现单词表中没有的单词
+            else:
+                middle = word_count[int(len([count for count in word_count if count[1] > feq_min]) * count_percent)][1]
             for word in word_count:
                 if word[1] > middle:
                     word_list.append(word[0])
@@ -69,7 +72,7 @@ class BuildDict:
 
     @staticmethod
     def build_dict_from_list(word_list):
-        """把单词-编号词典转化为树形词典"""
+        """把单词词典转化为树形词典"""
         word_dict = {}
         wid = 0
         for word in word_list:
