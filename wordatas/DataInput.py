@@ -17,26 +17,25 @@ class DataInput:
 
 
     def __init__(self, path, wordn_max, feq_min, count_percent):
-        #数据文件路径
-        index_path = path.split('.')[0] + '\\'
+        #数据分三层文件夹
+        index_paths = [path.split('.')[0] + '\\']
+        index_paths.append(index_paths[0] + '字数不大于%d的词统计数据' % wordn_max + '\\')
+        index_paths.append(index_paths[1] + '至少出现%d次的词中的前%f%%的词统计数据' % (feq_min, count_percent * 100) + '\\')
         #原文存储路径
-        word_data_path = index_path + 'word_data.json'
+        word_data_path = index_paths[0] + 'word_data.json'
         #词频存储路径
-        word_counts_path = index_path + '字数不大于%d的word_counts.json' % wordn_max
+        word_counts_path = index_paths[1] + 'word_counts.json'
         #单词表存储路径
-        word_list_path = index_path + '字数不大于%d且至少出现%d次的词中的前%f%%的word_list.json' % (
-            wordn_max, feq_min, count_percent * 100)
+        word_list_path = index_paths[2] + 'word_list.json'
         #词典存储路径
-        word_dict_path = index_path + '字数不大于%d且至少出现%d次的词中的前%f%%的word_dict.json' % (
-            wordn_max, feq_min, count_percent * 100)
+        word_dict_path = index_paths[2] + 'word_dict.json'
         #结果存储路径
-        self.result_path = index_path + '字数不大于%d且至少出现%d次的词中的前%f%%%%' % (
-            wordn_max, feq_min, count_percent * 100) + '的%d维词向量.json'
-        self.hit_path = index_path + '字数不大于%d且至少出现%d次的词中的前%f%%的命中次数.json' % (
-            wordn_max, feq_min, count_percent * 100)
+        self.result_path = '%%'.join(index_paths[2].split('%')) + '%d维词向量.json'
+        self.hit_path = index_paths[2] + '命中次数.json'
         #读取原文
-        if not os.path.exists(index_path):
-            os.makedirs(index_path)  #没有路径先创建路径
+        for index_path in index_paths:
+            if not os.path.exists(index_path):
+                os.makedirs(index_path)  #没有路径先创建路径
         #读取或构建词典
         if os.path.exists(word_dict_path):  #如果有词典文件存在
             print('词典文件存在')
@@ -196,6 +195,7 @@ class DataInput:
 
     def record_result(self, word_vec_list):
         """记录词向量结果"""
-        with open(self.result_path % (len(word_vec_list[0])), 'w') as f:
+        result_path = self.result_path % (len(word_vec_list[0]))
+        with open(result_path, 'w') as f:
             json.dump({'word_list': self.word_list, 'word_vec_list': word_vec_list, 'word_hits': self.word_hits}, f)
-        print('结果及各单词命中次数已写入%s' % self.result_path)
+        print('结果及各单词命中次数已写入%s' % result_path)

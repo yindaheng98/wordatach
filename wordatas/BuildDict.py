@@ -16,10 +16,8 @@ class BuildDict:
         with open(path, 'r', encoding='utf-8', errors='ignore') as f:
             for line in f.readlines():
                 if zh_pattern.search(line):
-                    text.append(line)
-        text = ''.join(text)
-        text = '\n'.join(text.split(' \n'))  #去掉空格换行,python的文件read方法从文件中读取此符号会出bug
-        text = np.array(list(text))
+                    text.append(''.join(line.split(' ')))  #去掉空格
+        text = np.array(list(''.join(text)))
         return text
 
 
