@@ -166,13 +166,10 @@ class DataInput:
 
     def __next_batch(self):
         """下一个训练对"""
-        while 1:
-            next_word = self.__next_word()  #记录下一个词
-            batch = ([self.last_word, next_word], self.this_word)
-            self.last_word = self.this_word
-            self.this_word = next_word
-            if (0 not in batch) and (0 not in batch[0]):
-                break  #找到一个全不为0的batch才退出
+        next_word = self.__next_word()  #记录下一个词
+        batch = ([self.last_word, next_word], self.this_word)
+        self.last_word = self.this_word
+        self.this_word = next_word
         return batch
 
 
@@ -194,7 +191,7 @@ class DataInput:
         return batches
 
 
-    def next_batches_for_RNN(self, n_input, n_output):
+    def next_batch_for_RNN(self, n_input, n_output):
         """
         为RNN读出一串训练序列
         :param n_input: 需要多少个作为序列输入

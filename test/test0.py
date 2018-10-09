@@ -4,9 +4,9 @@ import tensorflow as tf
 import numpy.random as random
 
 data_input = DataInput('斗罗大陆.txt', 10, 10, 0.5)
-print(data_input.next_batches_for_RNN(32, 8))
-print(data_input.next_batches_for_RNN(32, 8))
-print(data_input.next_batches_for_RNN(32, 8))
+print(data_input.next_batch_for_RNN(32, 8))
+print(data_input.next_batch_for_RNN(32, 8))
+print(data_input.next_batch_for_RNN(32, 8))
 print(data_input.next_batches_for_cbow(30))
 print(data_input.next_batches_for_cbow(10))
 print(data_input.next_batches_for_cbow(10))
