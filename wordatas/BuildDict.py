@@ -56,8 +56,8 @@ class BuildDict:
         word_list = ['']
         for word_count in word_counts:
             #先找前feq_min位的词频值分界线
-            if len(word_count[0][0]) == 2:
-                middle = 0  #两位数的词全部计入以避免出现单词表中没有的单词
+            if len(word_count[0][0]) == 1:
+                middle = 0  #一位数的词全部计入以避免出现单词表中没有的单词
             else:
                 middle = word_count[int(len([count for count in word_count if count[1] > feq_min]) * count_percent)][1]
             for word in word_count:

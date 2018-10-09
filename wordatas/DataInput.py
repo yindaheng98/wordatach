@@ -121,11 +121,12 @@ class DataInput:
 
     def __update_words(self):
         """更新last_w使长度达到wordn_max字"""
-        needs = self.wordn_max - len(self.words)  #算出缺少多少字达到wordn_max字
-        for _ in range(0, needs):
-            self.words.append(self.word_data.read(1))  #并读入一串字
-        if self.words[-1] == '':
-            raise IOError('文件已读完')
+        while len(self.words) <= self.wordn_max:
+            next_w = self.word_data.read(1)
+            if next_w == '':
+                raise IOError('文件已读完')
+            if not next_w.strip() == '':  #有个奇怪的字符显示为空但not == ''，不知是python读写数据的问题还是转码的问题
+                self.words.append(next_w)
 
 
     def __next_word(self):
@@ -191,6 +192,24 @@ class DataInput:
             batches.append((batch[1], batch[0][0]))
             batches.append((batch[1], batch[0][1]))
         return batches
+
+
+    def next_batches_for_RNN(self, n_input, n_output):
+        """
+        为RNN读出一串训练序列
+        :param n_input: 需要多少个作为序列输入
+        :param n_output: 需要多少个作为序列输出
+        :return: 返回([n_input个词],[n_output个词])
+        """
+        input_batch = []
+        for i in range(0, n_input):
+            next_word = self.__next_word()
+            input_batch.append(next_word)
+        output_batch = []
+        for i in range(0, n_output):
+            next_word = self.__next_word()
+            output_batch.append(next_word)
+        return input_batch, output_batch
 
 
     def record_result(self, word_vec_list):
